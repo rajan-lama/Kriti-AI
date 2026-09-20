@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[data-gen-for][hidden] {
+	display: none !important;
+}

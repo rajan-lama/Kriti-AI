@@ -17,6 +17,8 @@
 /wp-*.php
 /xmlrpc.php
 
+/node_modules/
+
 # Configuration
 wp-config.php
 
@@ -34,6 +36,9 @@ wp-config.php
 
 # htaccess
 /.htaccess
+
+.DS_Store
+Thumbs.db
 
 # All plugins
 #
