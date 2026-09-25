@@ -1,5 +1,5 @@
 <!-- Footer -->
-<footer id="kriti-ai-dashboard-footer" class="w-full mt-5">
+<footer id="kriti-ai-dashboard-footer" class="w-full">
   <div class="flex flex-col md:flex-row justify-between items-center gap-stack-lg max-w-7xl mx-auto px-margin-page py-stack-lg">
     <div class="flex flex-wrap justify-center gap-6">
       <a class="font-body-md text-body-md text-slate-gray dark:text-on-surface-variant hover:underline hover:text-primary opacity-90 hover:opacity-100 transition-opacity" href="https://kritiai.net/privacy-policy"><?php esc_html_e('Privacy Policy', 'kriti-ai'); ?></a>
