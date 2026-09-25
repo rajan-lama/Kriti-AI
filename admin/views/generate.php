@@ -220,7 +220,7 @@ function kriti_ai_render_provider_select($kriti_ai_slugs, $kriti_ai_defaultSlug,
 
             <!-- Action Bar -->
             <div class="flex justify-end pt-4 border-t border-slate-200">
-              <button class="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm" type="submit" id="kriti-ai-generate-btn" <?php disabled(empty($text_enabled) && empty($image_enabled) && empty($audio_enabled) && empty($video_enabled)); ?>>
+              <button class="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm" type="submit" id="kriti-ai-generate-btn">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                 </svg>

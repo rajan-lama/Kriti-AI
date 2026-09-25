@@ -2,9 +2,9 @@
 Contributors: lamarajan
 Tags: ai, content generation, text to speech, image generation, video
 Requires at least: 5.8
-Tested up to: 7.1.1
+Tested up to: 7.1.2
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -175,6 +175,9 @@ Text: Local LLMs, OpenAI, Google Gemini, DeepSeek, Ollama and Mock. Image: Local
 Video providers run asynchronously. The plugin polls them on every WP-Cron tick using the configured poll interval. If your site has no external cron, make sure WP-Cron is enabled (default) or set up a real cron job hitting wp-cron.php.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fixed Found Bug.
 
 = 1.0.1 =
 * Fixed Bug on AI Studio.
