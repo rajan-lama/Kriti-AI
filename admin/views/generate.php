@@ -15,6 +15,7 @@ if (! current_user_can('manage_options')) {
 }
 
 $kriti_ai_settings = Settings::get();
+$kriti_ai_choices  = Settings::choices();
 $kriti_ai_top_p    = isset($kriti_ai_settings['top_p']) ? (float) $kriti_ai_settings['top_p'] : 1.0;
 
 $kriti_ai_text_enabled  = Provider_Manager::enabled_slugs('text');
@@ -48,7 +49,7 @@ function kriti_ai_render_provider_select($kriti_ai_slugs, $kriti_ai_defaultSlug,
     printf(
       '<option value="%1$s"%3$s>%2$s</option>',
       esc_attr($kriti_ai_slug),
-      esc_html(ucwords(str_replace('_', ' ', $kriti_ai_slug))),
+      esc_html(Provider_Manager::label($kriti_ai_slug)),
       selected($kriti_ai_slug, $kriti_ai_defaultSlug, false)
     );
   }
@@ -298,6 +299,14 @@ function kriti_ai_render_provider_select($kriti_ai_slugs, $kriti_ai_defaultSlug,
               <input class="w-full rounded-md border-slate-200 py-1 px-2 text-right text-xs text-indigo-600 bg-indigo-50 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-2" type="number" name="top_p" id="kriti-ai-top-p" min="0" max="1" step="0.01" value="<?php echo esc_attr($kriti_ai_top_p); ?>">
               <p class="text-xs text-slate-500 mt-2 leading-tight"><?php esc_html_e('Nucleus sampling threshold. Lower values make output more focused.', 'kriti-ai'); ?></p>
             </div>
+            <!-- Top K -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="block text-sm font-medium text-slate-700" for="kriti-ai-top-k"><?php esc_html_e('Top K', 'kriti-ai'); ?></label>
+              </div>
+              <input class="w-full rounded-md border-slate-200 py-1 px-2 text-right text-xs text-indigo-600 bg-indigo-50 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-2" type="number" name="top_k" id="kriti-ai-top-k" min="0" max="500" step="1" value="<?php echo esc_attr((int) $kriti_ai_settings['top_k']); ?>">
+              <p class="text-xs text-slate-500 mt-2 leading-tight"><?php esc_html_e('Sample only from the K most likely tokens. 0 disables it. Used by Gemini, Ollama and OpenRouter.', 'kriti-ai'); ?></p>
+            </div>
           </div>
 
           <!-- Parameters for image generation -->
@@ -306,32 +315,33 @@ function kriti_ai_render_provider_select($kriti_ai_slugs, $kriti_ai_defaultSlug,
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-img-resolution"><?php esc_html_e('Resolution', 'kriti-ai'); ?></label>
                 <select name="resolution" id="kriti-ai-img-resolution" class="kriti-ai-param-input">
-                  <option value="1024x1024" selected><?php esc_html_e('1024x1024', 'kriti-ai'); ?></option>
-                  <option value="1024x1792"><?php esc_html_e('1024x1792', 'kriti-ai'); ?></option>
-                  <option value="1792x1024"><?php esc_html_e('1792x1024', 'kriti-ai'); ?></option>
-                  <option value="512x512"><?php esc_html_e('512x512', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['image_resolution'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['image_resolution']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-img-aspect"><?php esc_html_e('Aspect Ratio', 'kriti-ai'); ?></label>
                 <select name="aspect_ratio" id="kriti-ai-img-aspect" class="kriti-ai-param-input">
-                  <option value="1:1" selected><?php esc_html_e('1:1 (Square)', 'kriti-ai'); ?></option>
-                  <option value="16:9"><?php esc_html_e('16:9 (Widescreen)', 'kriti-ai'); ?></option>
-                  <option value="9:16"><?php esc_html_e('9:16 (Portrait)', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['image_aspect_ratio'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['image_aspect_ratio']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-img-style"><?php esc_html_e('Style', 'kriti-ai'); ?></label>
                 <select name="style" id="kriti-ai-img-style" class="kriti-ai-param-input">
-                  <option value="vivid" selected><?php esc_html_e('Vivid', 'kriti-ai'); ?></option>
-                  <option value="natural"><?php esc_html_e('Natural', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['image_style'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['image_style']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-img-quality"><?php esc_html_e('Quality', 'kriti-ai'); ?></label>
                 <select name="quality" id="kriti-ai-img-quality" class="kriti-ai-param-input">
-                  <option value="standard" selected><?php esc_html_e('Standard', 'kriti-ai'); ?></option>
-                  <option value="hd"><?php esc_html_e('HD', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['image_quality'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['image_quality']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
             </div>
@@ -342,19 +352,19 @@ function kriti_ai_render_provider_select($kriti_ai_slugs, $kriti_ai_defaultSlug,
             <div class="grid grid-cols-1 gap-3">
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-voice"><?php esc_html_e('Voice', 'kriti-ai'); ?></label>
-                <input type="text" name="voice" id="kriti-ai-voice" class="kriti-ai-param-input" value="" placeholder="<?php echo esc_attr__('alloy', 'kriti-ai'); ?>" />
+                <input type="text" name="voice" id="kriti-ai-voice" class="kriti-ai-param-input" value="<?php echo esc_attr($kriti_ai_settings['audio_voice']); ?>" placeholder="<?php echo esc_attr__('alloy', 'kriti-ai'); ?>" />
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-speed"><?php esc_html_e('Speed', 'kriti-ai'); ?></label>
-                <input type="number" name="speed" id="kriti-ai-speed" min="0.25" max="4" step="0.25" value="1.0" class="kriti-ai-param-input" />
+                <input type="number" name="speed" id="kriti-ai-speed" min="0.25" max="4" step="0.25" value="<?php echo esc_attr($kriti_ai_settings['audio_speed']); ?>" class="kriti-ai-param-input" />
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-stability"><?php esc_html_e('Stability', 'kriti-ai'); ?></label>
-                <input type="number" name="stability" id="kriti-ai-stability" min="0" max="1" step="0.1" value="0.5" class="kriti-ai-param-input" />
+                <input type="number" name="stability" id="kriti-ai-stability" min="0" max="1" step="0.1" value="<?php echo esc_attr($kriti_ai_settings['audio_stability']); ?>" class="kriti-ai-param-input" />
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-similarity"><?php esc_html_e('Similarity boost', 'kriti-ai'); ?></label>
-                <input type="number" name="similarity_boost" id="kriti-ai-similarity" min="0" max="1" step="0.1" value="0.75" class="kriti-ai-param-input" />
+                <input type="number" name="similarity_boost" id="kriti-ai-similarity" min="0" max="1" step="0.05" value="<?php echo esc_attr($kriti_ai_settings['audio_similarity_boost']); ?>" class="kriti-ai-param-input" />
               </div>
             </div>
           </div>
@@ -364,31 +374,30 @@ function kriti_ai_render_provider_select($kriti_ai_slugs, $kriti_ai_defaultSlug,
             <div class="grid grid-cols-1 gap-3">
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-duration"><?php esc_html_e('Duration (seconds)', 'kriti-ai'); ?></label>
-                <input type="number" name="duration" id="kriti-ai-duration" min="5" max="60" step="1" value="8" class="kriti-ai-param-input" />
+                <input type="number" name="duration" id="kriti-ai-duration" min="1" max="60" step="1" value="<?php echo esc_attr($kriti_ai_settings['video_duration']); ?>" class="kriti-ai-param-input" />
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-resolution"><?php esc_html_e('Resolution', 'kriti-ai'); ?></label>
                 <select name="resolution" id="kriti-ai-resolution" class="kriti-ai-param-input">
-                  <option value="720p"><?php esc_html_e('720p', 'kriti-ai'); ?></option>
-                  <option value="1080p"><?php esc_html_e('1080p', 'kriti-ai'); ?></option>
-                  <option value="1280x720" selected><?php esc_html_e('1280x720', 'kriti-ai'); ?></option>
-                  <option value="1920x1080"><?php esc_html_e('1920x1080', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['video_resolution'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['video_resolution']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-aspect"><?php esc_html_e('Aspect ratio', 'kriti-ai'); ?></label>
                 <select name="aspect_ratio" id="kriti-ai-aspect" class="kriti-ai-param-input">
-                  <option value="16:9"><?php esc_html_e('16:9', 'kriti-ai'); ?></option>
-                  <option value="9:16"><?php esc_html_e('9:16', 'kriti-ai'); ?></option>
-                  <option value="1:1"><?php esc_html_e('1:1', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['video_aspect_ratio'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['video_aspect_ratio']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
               <div class="kriti-ai-field kriti-ai-param-field kriti-ai-param-card">
                 <label for="kriti-ai-quality"><?php esc_html_e('Quality', 'kriti-ai'); ?></label>
                 <select name="quality" id="kriti-ai-quality" class="kriti-ai-param-input">
-                  <option value="low"><?php esc_html_e('Low', 'kriti-ai'); ?></option>
-                  <option value="medium" selected><?php esc_html_e('Medium', 'kriti-ai'); ?></option>
-                  <option value="high"><?php esc_html_e('High', 'kriti-ai'); ?></option>
+                  <?php foreach ($kriti_ai_choices['video_quality'] as $kriti_ai_value => $kriti_ai_option) : ?>
+                    <option value="<?php echo esc_attr($kriti_ai_value); ?>" <?php selected($kriti_ai_value, $kriti_ai_settings['video_quality']); ?>><?php echo esc_html($kriti_ai_option); ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
             </div>

@@ -717,7 +717,14 @@
               topPInput.value =
                 prompt.top_p !== undefined && prompt.top_p !== ""
                   ? prompt.top_p
-                  : 1;
+                  : KritiAI.defaults.top_p;
+            }
+            var topKInput = document.getElementById("kriti-ai-top-k");
+            if (topKInput) {
+              topKInput.value =
+                prompt.top_k !== undefined && prompt.top_k !== ""
+                  ? prompt.top_k
+                  : KritiAI.defaults.top_k || 0;
             }
             syncParameterControls();
 
@@ -1660,7 +1667,73 @@
     loadDashboardRecent();
   }
 
+  /* -------------------------------------------------- Providers */
+
+  function initProviders() {
+    document
+      .querySelectorAll("[data-kriti-ai-provider]")
+      .forEach(function (card) {
+        var testBtn = card.querySelector("[data-kriti-ai-test]");
+        var keyInput = card.querySelector("[data-kriti-ai-key]");
+        var urlInput = card.querySelector("[data-kriti-ai-url]");
+        var status = card.querySelector("[data-kriti-ai-status]");
+        var message = card.querySelector("[data-kriti-ai-message]");
+
+        if (!testBtn) {
+          return;
+        }
+
+        function showMessage(text, ok) {
+          message.textContent = text;
+          message.classList.toggle("is-success", ok);
+          message.classList.toggle("is-error", !ok);
+        }
+
+        // Editing the credentials invalidates the previous result.
+        [keyInput, urlInput].forEach(function (input) {
+          if (input) {
+            input.addEventListener("input", function () {
+              status.hidden = true;
+              showMessage("", true);
+            });
+          }
+        });
+
+        testBtn.addEventListener("click", function () {
+          var data = { slug: testBtn.getAttribute("data-kriti-ai-test") };
+
+          // Test what is in the form, even if it has not been saved yet.
+          if (keyInput) {
+            data.api_key = keyInput.value;
+          }
+          if (urlInput) {
+            data.base_url = urlInput.value;
+          }
+
+          testBtn.disabled = true;
+          status.hidden = true;
+          showMessage(__("Testing…", "kriti-ai"), true);
+
+          api
+            .post("kriti_ai_test_provider", data)
+            .then(function (res) {
+              status.hidden = false;
+              showMessage(res.message, true);
+            })
+            .catch(function (err) {
+              showMessage(err.message, false);
+            })
+            .finally(function () {
+              testBtn.disabled = false;
+            });
+        });
+      });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    if (document.querySelector("[data-kriti-ai-provider]")) {
+      initProviders();
+    }
     if (document.getElementById("kriti-ai-generate-form")) {
       initGenerate();
     }

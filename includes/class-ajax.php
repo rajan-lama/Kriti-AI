@@ -28,6 +28,7 @@ class Ajax
     add_action('wp_ajax_kriti_ai_cancel_job', array(__CLASS__, 'cancel_job'));
     add_action('wp_ajax_kriti_ai_dashboard', array(__CLASS__, 'dashboard'));
     add_action('wp_ajax_kriti_ai_load_prompt', array(__CLASS__, 'load_prompt'));
+    add_action('wp_ajax_kriti_ai_test_provider', array(__CLASS__, 'test_provider'));
   }
 
   /**
@@ -113,6 +114,7 @@ class Ajax
    */
   private static function queue_image($provider)
   {
+    $settings = Settings::get();
     $capability = 'image';
     $provider   = self::resolve_provider($provider, $capability);
 
@@ -131,10 +133,10 @@ class Ajax
       'title'        => sanitize_text_field(self::get_param('title', __('AI Image', 'kriti-ai'))),
       'provider'     => $provider,
       'model'        => sanitize_text_field(self::get_param('model', '')),
-      'resolution'   => sanitize_text_field(self::get_param('resolution', '1024x1024')),
-      'aspect_ratio' => sanitize_text_field(self::get_param('aspect_ratio', '1:1')),
-      'style'        => sanitize_text_field(self::get_param('style', 'vivid')),
-      'quality'      => sanitize_text_field(self::get_param('quality', 'standard')),
+      'resolution'   => sanitize_text_field(self::get_param('resolution', $settings['image_resolution'])),
+      'aspect_ratio' => sanitize_text_field(self::get_param('aspect_ratio', $settings['image_aspect_ratio'])),
+      'style'        => sanitize_text_field(self::get_param('style', $settings['image_style'])),
+      'quality'      => sanitize_text_field(self::get_param('quality', $settings['image_quality'])),
     );
 
     return Queue::add('image', $provider, $params['model'], $params);
@@ -178,7 +180,8 @@ class Ajax
       'model'       => sanitize_text_field(self::get_param('model', '')),
       'temperature' => (float) self::get_param('temperature', $settings['temperature']),
       'max_tokens'  => max(64, (int) self::get_param('max_tokens', $settings['max_tokens'])),
-      'top_p'       => (float) self::get_param('top_p', 1.0),
+      'top_p'       => (float) self::get_param('top_p', $settings['top_p']),
+      'top_k'       => max(0, (int) self::get_param('top_k', $settings['top_k'])),
     );
 
     return Queue::add('text', $provider, $params['model'], $params);
@@ -192,6 +195,7 @@ class Ajax
    */
   private static function queue_audio($provider)
   {
+    $settings = Settings::get();
     $capability = 'audio';
     $provider   = self::resolve_provider($provider, $capability);
 
@@ -210,11 +214,11 @@ class Ajax
       'title'            => sanitize_text_field(self::get_param('title', __('AI Audio', 'kriti-ai'))),
       'provider'         => $provider,
       'model'            => sanitize_text_field(self::get_param('model', '')),
-      'voice'            => sanitize_text_field(self::get_param('voice', '')),
-      'speed'            => (float) self::get_param('speed', 1.0),
+      'voice'            => sanitize_text_field(self::get_param('voice', $settings['audio_voice'])),
+      'speed'            => (float) self::get_param('speed', $settings['audio_speed']),
       'format'           => sanitize_key(self::get_param('format', 'mp3')),
-      'stability'        => (float) self::get_param('stability', 0.5),
-      'similarity_boost' => (float) self::get_param('similarity_boost', 0.75),
+      'stability'        => (float) self::get_param('stability', $settings['audio_stability']),
+      'similarity_boost' => (float) self::get_param('similarity_boost', $settings['audio_similarity_boost']),
     );
 
     return Queue::add('audio', $provider, $params['model'], $params);
@@ -228,6 +232,7 @@ class Ajax
    */
   private static function queue_video($provider)
   {
+    $settings = Settings::get();
     $capability = 'video';
     $provider   = self::resolve_provider($provider, $capability);
 
@@ -246,10 +251,10 @@ class Ajax
       'title'        => sanitize_text_field(self::get_param('title', __('AI Video', 'kriti-ai'))),
       'provider'     => $provider,
       'model'        => sanitize_text_field(self::get_param('model', '')),
-      'duration'     => (int) self::get_param('duration', 8),
-      'resolution'   => sanitize_text_field(self::get_param('resolution', '1280x720')),
-      'aspect_ratio' => sanitize_text_field(self::get_param('aspect_ratio', '16:9')),
-      'quality'      => sanitize_text_field(self::get_param('quality', 'medium')),
+      'duration'     => (int) self::get_param('duration', $settings['video_duration']),
+      'resolution'   => sanitize_text_field(self::get_param('resolution', $settings['video_resolution'])),
+      'aspect_ratio' => sanitize_text_field(self::get_param('aspect_ratio', $settings['video_aspect_ratio'])),
+      'quality'      => sanitize_text_field(self::get_param('quality', $settings['video_quality'])),
     );
 
     return Queue::add('video', $provider, $params['model'], $params);
@@ -474,11 +479,11 @@ class Ajax
         }
 
         $model_choices = Provider_Manager::model_choices($slug);
-        $model         = isset($config['model']) && '' !== $config['model'] ? $config['model'] : (isset($model_choices[0]) ? $model_choices[0] : '');
+        $model         = Provider_Manager::default_model($slug, $config);
 
         $seen[$slug] = array(
           'slug'         => $slug,
-          'label'        => ucwords(str_replace('_', ' ', $slug)),
+          'label'        => Provider_Manager::label($slug),
           'model'        => $model,
           'status'       => $status,
           'enabled'      => (bool) $enabled,
@@ -541,5 +546,48 @@ class Ajax
         'item_type'   => get_post_meta($post->ID, 'kriti_ai_item_type', true),
       )
     );
+  }
+
+  /**
+   * Test a provider's connection with the key / URL currently in the form,
+   * falling back to the saved values for fields that were not sent.
+   *
+   * @return void
+   */
+  public static function test_provider()
+  {
+    self::guard();
+
+    $slug  = sanitize_key(self::get_param('slug', ''));
+    $known = array();
+
+    foreach (array('text', 'image', 'audio', 'video') as $capability) {
+      $known = array_merge($known, Provider_Manager::slugs_for($capability));
+    }
+
+    if (! in_array($slug, $known, true)) {
+      wp_send_json_error(array('message' => __('Unknown provider.', 'kriti-ai')));
+    }
+
+    $config = Settings::provider($slug);
+
+    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce checked in guard().
+    if (isset($_REQUEST['api_key'])) {
+      $config['api_key'] = trim((string) self::get_param('api_key', ''));
+    }
+
+    if (isset($_REQUEST['base_url'])) {
+      $config['base_url'] = preg_replace('#/v1beta(/models)?/?$#i', '', rtrim(esc_url_raw(self::get_param('base_url', '')), '/'));
+    }
+    // phpcs:enable
+
+    $provider = Provider_Manager::create($slug, $config);
+    $result   = $provider ? $provider->test_connection() : new \WP_Error('kriti_ai_no_provider', __('Unknown provider.', 'kriti-ai'));
+
+    if (is_wp_error($result)) {
+      wp_send_json_error(array('message' => $result->get_error_message()));
+    }
+
+    wp_send_json_success(array('message' => __('Connection successful.', 'kriti-ai')));
   }
 }

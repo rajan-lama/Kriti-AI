@@ -98,6 +98,7 @@ class Writer_Bridge implements \KritiAI\Writer\Platform\PlatformContract
       'temperature' => isset($settings['temperature']) ? (float) $settings['temperature'] : 0.7,
       'max_tokens'  => isset($settings['max_tokens']) ? (int) $settings['max_tokens'] : 1024,
       'top_p'       => isset($settings['top_p']) ? (float) $settings['top_p'] : 1.0,
+      'top_k'       => isset($settings['top_k']) ? (int) $settings['top_k'] : 0,
     );
 
     if (isset($payload['model']) && '' !== (string) $payload['model']) {

@@ -57,6 +57,11 @@ class Gemini_Text extends Provider implements Text_Provider
       $generation_config['temperature'] = isset($params['temperature']) ? (float) $params['temperature'] : (float) $settings['temperature'];
     }
 
+    $top_k = $this->get_top_k($params);
+    if ($top_k > 0) {
+      $generation_config['topK'] = $top_k;
+    }
+
     $body = array(
       'contents'         => array(
         array(
@@ -129,5 +134,18 @@ class Gemini_Text extends Provider implements Text_Provider
     );
 
     return isset($legacy_models[$model]) ? $legacy_models[$model] : $model;
+  }
+
+  /**
+   * Request used by the connection test.
+   *
+   * @return array
+   */
+  protected function connection_request()
+  {
+    return array(
+      'url'     => preg_replace('#/v1beta(/models)?/?$#i', '', rtrim($this->get_base_url('https://generativelanguage.googleapis.com'), '/')) . '/v1beta/models?key=' . rawurlencode($this->get_api_key()),
+      'headers' => array(),
+    );
   }
 }

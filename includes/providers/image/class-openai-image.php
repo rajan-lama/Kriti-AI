@@ -85,4 +85,17 @@ class OpenAI_Image extends Provider implements Image_Provider
 			'model'     => $model,
 		);
 	}
+
+	/**
+	 * Request used by the connection test.
+	 *
+	 * @return array
+	 */
+	protected function connection_request()
+	{
+		return array(
+			'url'		 => $this->get_base_url('https://api.openai.com') . '/v1/models',
+			'headers' => array('Authorization' => 'Bearer ' . $this->get_api_key()),
+		);
+	}
 }

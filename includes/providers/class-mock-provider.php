@@ -181,4 +181,14 @@ class Mock_Provider extends Provider implements Text_Provider, Image_Provider, A
 			'extension' => 'gif',
 		);
 	}
+
+	/**
+	 * The mock provider has no remote service, so the test always passes.
+	 *
+	 * @return true
+	 */
+	public function test_connection()
+	{
+		return true;
+	}
 }

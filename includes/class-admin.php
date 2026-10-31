@@ -136,6 +136,15 @@ class Admin
 
     add_submenu_page(
       'kriti-ai',
+      __('Settings', 'kriti-ai'),
+      __('Settings', 'kriti-ai'),
+      'manage_options',
+      'kriti-ai-settings',
+      array(__CLASS__, 'pageSettings')
+    );
+
+    add_submenu_page(
+      'kriti-ai',
       __('MCP Server', 'kriti-ai'),
       __('MCP Server', 'kriti-ai'),
       'manage_options',

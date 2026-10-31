@@ -23,20 +23,26 @@ spl_autoload_register(
     $name     = array_pop($parts);
 
     $name = str_replace('_', '-', $name);
-    $name = preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', $name);
-    $name = strtolower($name);
+
+    // Try the plain lowercase name first (OpenAI_Text => openai-text), then a
+    // CamelCase-split name (SomeClass => some-class).
+    $names = array_unique(
+      array(
+        strtolower($name),
+        strtolower(preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', $name)),
+      )
+    );
 
     $directory = KRITI_AI_DIR . 'includes';
     if (! empty($parts)) {
       $directory .= '/' . strtolower(implode('/', $parts));
     }
 
-    $name = strtolower($name);
-
-    $files = array(
-      $directory . '/class-' . $name . '.php',
-      $directory . '/interface-' . $name . '.php',
-    );
+    $files = array();
+    foreach ($names as $candidate) {
+      $files[] = $directory . '/class-' . $candidate . '.php';
+      $files[] = $directory . '/interface-' . $candidate . '.php';
+    }
 
     foreach ($files as $file) {
       if (is_readable($file)) {

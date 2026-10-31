@@ -25,10 +25,10 @@ class Provider_Manager
    * @var array
    */
   private static $capabilities = array(
-    'text'  => array('openai', 'gemini', 'deepseek', 'ollama', 'mock'),
-    'image' => array('openai_image', 'gemini_image', 'mock'),
-    'audio' => array('openai_audio', 'gemini_audio', 'mock'),
-    'video' => array('openai_video', 'gemini_video', 'mock'),
+    'text'  => array('openai', 'anthropic', 'gemini', 'deepseek', 'groq', 'openrouter', 'ollama', 'mock'),
+    'image' => array('openai_image', 'gemini_image', 'stability', 'replicate', 'local_ai_image', 'mock'),
+    'audio' => array('openai_audio', 'elevenlabs', 'gemini_audio', 'local_ai_audio', 'mock'),
+    'video' => array('openai_video', 'gemini_video', 'local_ai_video', 'mock'),
   );
 
   /**
@@ -71,6 +71,19 @@ class Provider_Manager
   }
 
   /**
+   * Build an uncached provider instance from an explicit config, e.g. to
+   * test credentials that have not been saved yet.
+   *
+   * @param string $slug Provider slug.
+   * @param array  $config Provider config.
+   * @return Provider|null
+   */
+  public static function create($slug, $config)
+  {
+    return self::instantiate($slug, $config);
+  }
+
+  /**
    * Instantiate a provider class for a slug.
    *
    * @param string $slug Provider slug.
@@ -81,15 +94,24 @@ class Provider_Manager
   {
     $map = array(
       'openai'       => 'KritiAI\\Providers\\Text\\OpenAI_Text',
+      'anthropic'    => 'KritiAI\\Providers\\Text\\Anthropic_Text',
       'gemini'       => 'KritiAI\\Providers\\Text\\Gemini_Text',
       'deepseek'     => 'KritiAI\\Providers\\Text\\DeepSeek_Text',
+      'groq'         => 'KritiAI\\Providers\\Text\\Groq_Text',
+      'openrouter'   => 'KritiAI\\Providers\\Text\\OpenRouter_Text',
       'ollama'       => 'KritiAI\\Providers\\Text\\Ollama_Text',
+      'stability'    => 'KritiAI\\Providers\\Image\\Stability_Image',
+      'replicate'    => 'KritiAI\\Providers\\Image\\Replicate_Image',
       'openai_image' => 'KritiAI\\Providers\\Image\\OpenAI_Image',
       'gemini_image' => 'KritiAI\\Providers\\Image\\Gemini_Image',
       'openai_audio' => 'KritiAI\\Providers\\Audio\\OpenAI_Audio',
+      'elevenlabs'   => 'KritiAI\\Providers\\Audio\\ElevenLabs_Audio',
       'gemini_audio' => 'KritiAI\\Providers\\Audio\\Gemini_Audio',
       'openai_video' => 'KritiAI\\Providers\\Video\\OpenAI_Video',
       'gemini_video' => 'KritiAI\\Providers\\Video\\Gemini_Video',
+      'local_ai_image' => 'KritiAI\\Providers\\Image\\Local_AI_Image',
+      'local_ai_audio' => 'KritiAI\\Providers\\Audio\\Local_AI_Audio',
+      'local_ai_video' => 'KritiAI\\Providers\\Video\\Local_AI_Video',
       'mock'         => 'KritiAI\\Providers\\Mock_Provider',
     );
 
@@ -147,6 +169,11 @@ class Provider_Manager
       }
     }
 
+    // The mock provider is a fallback for trying the plugin without a key.
+    if (count($enabled) > 1) {
+      $enabled = array_values(array_diff($enabled, array('mock')));
+    }
+
     return $enabled;
   }
 
@@ -182,8 +209,68 @@ class Provider_Manager
    */
   public static function requires_key($slug)
   {
-    $no_key = array('mock', 'ollama');
+    // Local AI servers take an optional key.
+    $no_key = array('mock', 'ollama', 'local_ai_image', 'local_ai_audio', 'local_ai_video');
     return ! in_array($slug, $no_key, true);
+  }
+
+  /**
+   * Whether the provider's default model is set on the Integrations Hub.
+   * Only self-hosted servers need this, since their models are whatever the
+   * user installed; other providers default to their first suggested model.
+   *
+   * @param string $slug Provider slug.
+   * @return bool
+   */
+  public static function has_model_setting($slug)
+  {
+    return 'ollama' === $slug || self::is_local_ai($slug);
+  }
+
+  /**
+   * Model a provider uses when a generation does not choose one.
+   *
+   * @param string $slug Provider slug.
+   * @param array  $config Provider config.
+   * @return string
+   */
+  public static function default_model($slug, $config)
+  {
+    if (self::has_model_setting($slug)) {
+      return isset($config['model']) ? (string) $config['model'] : '';
+    }
+
+    $choices = self::model_choices($slug);
+
+    return isset($choices[0]) ? (string) $choices[0] : '';
+  }
+
+  /**
+   * Whether a provider is a self-hosted Local AI server.
+   *
+   * @param string $slug Provider slug.
+   * @return bool
+   */
+  public static function is_local_ai($slug)
+  {
+    return 0 === strpos($slug, 'local_ai_');
+  }
+
+  /**
+   * Human-readable provider name.
+   *
+   * @param string $slug Provider slug.
+   * @return string
+   */
+  public static function label($slug)
+  {
+    $labels = array(
+      'local_ai_image' => __('Local AI (Image)', 'kriti-ai'),
+      'local_ai_audio' => __('Local AI (Audio)', 'kriti-ai'),
+      'local_ai_video' => __('Local AI (Video)', 'kriti-ai'),
+    );
+
+    return isset($labels[$slug]) ? $labels[$slug] : ucwords(str_replace('_', ' ', $slug));
   }
 
   /**
@@ -228,8 +315,18 @@ class Provider_Manager
       'gemini_image' => array('gemini-3.1-flash-image', 'gemini-2.5-flash-image', 'gemini-3-pro-image', 'gemini-3.1-flash-lite-image'),
       'openai_audio' => array('gpt-4o-mini-tts', 'tts-1', 'tts-1-hd'),
       'gemini_audio' => array('gemini-2.5-flash-preview-tts', 'gemini-3.1-flash-tts-preview', 'gemini-2.5-pro-preview-tts'),
-      'openai_video' => array('sora-2'),
+      'openai_video' => array('sora-2', 'sora-2-pro'),
       'gemini_video' => array('veo-3.1-lite-generate-preview', 'veo-3.1-generate-preview', 'veo-3.1-fast-generate-preview'),
+      'elevenlabs'   => array('eleven_multilingual_v2', 'eleven_flash_v2_5', 'eleven_turbo_v2_5'),
+      'anthropic'    => array('claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'),
+      'groq'         => array('llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'),
+      'openrouter'   => array('openrouter/auto', 'anthropic/claude-sonnet-5-5', 'openai/gpt-4o-mini', 'deepseek/deepseek-r1'),
+      'stability'    => array('sd3.5-large', 'sd3.5-large-turbo', 'sd3.5-medium', 'core', 'ultra'),
+      'replicate'    => array('black-forest-labs/flux-schnell', 'black-forest-labs/flux-dev', 'black-forest-labs/flux-1.1-pro'),
+      // Local AI model names depend on what the server has installed.
+      'local_ai_image' => array(),
+      'local_ai_audio' => array(),
+      'local_ai_video' => array(),
       'mock'         => array('mock-model'),
     );
 

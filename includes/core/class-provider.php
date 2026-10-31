@@ -64,11 +64,60 @@ abstract class Provider
 	/**
 	 * Whether the provider is enabled.
 	 *
+	 * There is no on/off switch: cloud providers are enabled once an API key
+	 * is configured, and self-hosted ones (Ollama, Local AI) once a server
+	 * URL is. The mock provider is always available; Provider_Manager only
+	 * offers it when nothing else is configured.
+	 *
 	 * @return bool
 	 */
 	public function is_enabled()
 	{
-		return ! empty($this->config['enabled']);
+		if ('mock' === $this->slug) {
+			return true;
+		}
+
+		if (\KritiAI\Provider_Manager::requires_key($this->slug)) {
+			return '' !== $this->get_api_key();
+		}
+
+		return ! empty($this->config['base_url']);
+	}
+
+	/**
+	 * Verify the configured credentials with a lightweight, read-only API call.
+	 *
+	 * @return true|\WP_Error
+	 */
+	public function test_connection()
+	{
+		if (\KritiAI\Provider_Manager::requires_key($this->slug) && '' === $this->get_api_key()) {
+			return new \WP_Error('kriti_ai_missing_key', __('Enter an API key first.', 'kriti-ai'));
+		}
+
+		$request = $this->connection_request();
+
+		if (is_wp_error($request)) {
+			return $request;
+		}
+
+		$response = $this->http_get($request['url'], $request['headers'], 20);
+
+		if (is_wp_error($response) || 200 !== wp_remote_retrieve_response_code($response)) {
+			return new \WP_Error('kriti_ai_connection_failed', $this->extract_error($response, __('Connection failed.', 'kriti-ai')));
+		}
+
+		return true;
+	}
+
+	/**
+	 * Describe the GET request used to verify credentials.
+	 *
+	 * @return array{url: string, headers: array}|\WP_Error
+	 */
+	protected function connection_request()
+	{
+		return new \WP_Error('kriti_ai_test_unsupported', __('This provider does not support connection tests.', 'kriti-ai'));
 	}
 
 	/**
@@ -98,7 +147,23 @@ abstract class Provider
 		if (! empty($params['model'])) {
 			return (string) $params['model'];
 		}
-		return isset($this->config['model']) ? (string) $this->config['model'] : '';
+
+		return \KritiAI\Provider_Manager::default_model($this->slug, $this->config);
+	}
+
+	/**
+	 * Get the top-k sampling value, allowing per-request overrides.
+	 *
+	 * Zero means disabled; providers should omit the parameter in that case.
+	 *
+	 * @param array $params Request parameters.
+	 * @return int
+	 */
+	protected function get_top_k($params)
+	{
+		$top_k = isset($params['top_k']) && '' !== $params['top_k'] ? $params['top_k'] : $this->settings()['top_k'];
+
+		return max(0, (int) $top_k);
 	}
 
 	/**
@@ -127,6 +192,7 @@ abstract class Provider
 			array(
 				'temperature'   => 0.7,
 				'max_tokens'    => 1024,
+				'top_k'         => 0,
 				'text_timeout'  => 90,
 				'media_timeout' => 180,
 			)
