@@ -37,18 +37,84 @@ class Settings
     return wp_parse_args(
       get_option('kriti_ai_settings', array()),
       array(
-        'default_text_provider'  => 'mock',
-        'default_image_provider' => 'mock',
-        'default_audio_provider' => 'mock',
-        'default_video_provider' => 'mock',
+        // Default provider per type; '' means the first available one.
+        'default_text_provider'  => '',
+        'default_image_provider' => '',
+        'default_audio_provider' => '',
+        'default_video_provider' => '',
+        // Content generation.
         'temperature'            => 0.7,
         'max_tokens'             => 1024,
         'top_p'                  => 1.0,
-        'text_timeout'            => 90,
-        'media_timeout'           => 180,
+        'top_k'                  => 0,
+        // Image generation.
+        'image_resolution'       => '1024x1024',
+        'image_aspect_ratio'     => '1:1',
+        'image_style'            => 'vivid',
+        'image_quality'          => 'standard',
+        // Audio generation.
+        'audio_voice'            => '',
+        'audio_speed'            => 1.0,
+        'audio_stability'        => 0.5,
+        'audio_similarity_boost' => 0.75,
+        // Video generation.
+        'video_duration'         => 8,
+        'video_resolution'       => '1280x720',
+        'video_aspect_ratio'     => '16:9',
+        'video_quality'          => 'medium',
+        // Advanced.
+        'text_timeout'           => 90,
+        'media_timeout'          => 180,
         'video_poll_interval'    => 15,
         'delete_uninstall'       => 0,
       )
+    );
+  }
+
+  /**
+   * Allowed values for the select-type generation settings, shared by the
+   * Settings page and AI Studio.
+   *
+   * @return array<string, array<string, string>> Setting key => value => label.
+   */
+  public static function choices()
+  {
+    return array(
+      'image_resolution'   => array(
+        '1024x1024' => '1024x1024',
+        '1024x1792' => '1024x1792',
+        '1792x1024' => '1792x1024',
+        '512x512'   => '512x512',
+      ),
+      'image_aspect_ratio' => array(
+        '1:1'  => __('1:1 (Square)', 'kriti-ai'),
+        '16:9' => __('16:9 (Widescreen)', 'kriti-ai'),
+        '9:16' => __('9:16 (Portrait)', 'kriti-ai'),
+      ),
+      'image_style'        => array(
+        'vivid'   => __('Vivid', 'kriti-ai'),
+        'natural' => __('Natural', 'kriti-ai'),
+      ),
+      'image_quality'      => array(
+        'standard' => __('Standard', 'kriti-ai'),
+        'hd'       => __('HD', 'kriti-ai'),
+      ),
+      'video_resolution'   => array(
+        '720p'      => '720p',
+        '1080p'     => '1080p',
+        '1280x720'  => '1280x720',
+        '1920x1080' => '1920x1080',
+      ),
+      'video_aspect_ratio' => array(
+        '16:9' => '16:9',
+        '9:16' => '9:16',
+        '1:1'  => '1:1',
+      ),
+      'video_quality'      => array(
+        'low'    => __('Low', 'kriti-ai'),
+        'medium' => __('Medium', 'kriti-ai'),
+        'high'   => __('High', 'kriti-ai'),
+      ),
     );
   }
 
@@ -126,75 +192,56 @@ class Settings
         : array();
     }
 
-    $clean = array(
-      'default_text_provider'  => isset($settings['default_text_provider'])
-        ? sanitize_key($settings['default_text_provider'])
-        : '',
+    /*
+		 * Only fields present in the request are updated, so a form that
+		 * submits a subset of settings (e.g. the Integrations Hub) keeps the
+		 * rest. Generation options are set on the AI Studio page.
+		 */
+    $clean = self::get();
 
-      'default_image_provider' => isset($settings['default_image_provider'])
-        ? sanitize_key($settings['default_image_provider'])
-        : '',
+    foreach (array('text', 'image', 'audio', 'video') as $capability) {
+      $key = 'default_' . $capability . '_provider';
+      if (isset($settings[$key])) {
+        $slug        = sanitize_key($settings[$key]);
+        $clean[$key] = in_array($slug, Provider_Manager::slugs_for($capability), true) ? $slug : '';
+      }
+    }
 
-      'default_audio_provider' => isset($settings['default_audio_provider'])
-        ? sanitize_key($settings['default_audio_provider'])
-        : '',
+    foreach (self::choices() as $key => $options) {
+      if (isset($settings[$key]) && isset($options[(string) $settings[$key]])) {
+        $clean[$key] = (string) $settings[$key];
+      }
+    }
 
-      'default_video_provider' => isset($settings['default_video_provider'])
-        ? sanitize_key($settings['default_video_provider'])
-        : '',
+    if (isset($settings['audio_voice'])) {
+      $clean['audio_voice'] = sanitize_text_field($settings['audio_voice']);
+    }
 
-      'temperature' => isset($settings['temperature'])
-        ? min(
-          2.0,
-          max(
-            0.0,
-            (float) $settings['temperature']
-          )
-        )
-        : 0.7,
-
-      'max_tokens' => isset($settings['max_tokens'])
-        ? max(
-          1,
-          (int) $settings['max_tokens']
-        )
-        : 1024,
-
-      'top_p' => isset($settings['top_p'])
-        ? min(
-          1.0,
-          max(
-            0.0,
-            (float) $settings['top_p']
-          )
-        )
-        : 1.0,
-
-      'text_timeout' => isset($settings['text_timeout'])
-        ? max(
-          10,
-          (int) $settings['text_timeout']
-        )
-        : 90,
-
-      'media_timeout' => isset($settings['media_timeout'])
-        ? max(
-          10,
-          (int) $settings['media_timeout']
-        )
-        : 180,
-
-      'video_poll_interval' => isset($settings['video_poll_interval'])
-        ? max(
-          10,
-          (int) $settings['video_poll_interval']
-        )
-        : 15,
-
-      'delete_uninstall' => ! empty($settings['delete_uninstall'])
-        ? 1
-        : 0,
+    $numbers = array(
+      // key => array(min, max, cast).
+      'temperature'         => array(0.0, 2.0, 'float'),
+      'max_tokens'          => array(1, PHP_INT_MAX, 'int'),
+      'top_p'               => array(0.0, 1.0, 'float'),
+      'top_k'               => array(0, 500, 'int'),
+      'text_timeout'        => array(10, PHP_INT_MAX, 'int'),
+      'media_timeout'       => array(10, PHP_INT_MAX, 'int'),
+      'video_poll_interval' => array(10, PHP_INT_MAX, 'int'),
+      'audio_speed'            => array(0.25, 4.0, 'float'),
+      'audio_stability'        => array(0.0, 1.0, 'float'),
+      'audio_similarity_boost' => array(0.0, 1.0, 'float'),
+      'video_duration'         => array(1, 60, 'int'),
     );
+
+    foreach ($numbers as $key => $rule) {
+      if (isset($settings[$key]) && '' !== $settings[$key]) {
+        $value       = 'int' === $rule[2] ? (int) $settings[$key] : (float) $settings[$key];
+        $clean[$key] = min($rule[1], max($rule[0], $value));
+      }
+    }
+
+    if (isset($settings['delete_uninstall'])) {
+      $clean['delete_uninstall'] = ! empty($settings['delete_uninstall']) ? 1 : 0;
+    }
 
     update_option('kriti_ai_settings', $clean);
 
@@ -216,12 +263,15 @@ class Settings
 
     $existing = self::providers();
 
-    $provider_slugs = array_unique(
-      array_merge(
-        array_keys($existing),
-        array_keys($providers)
+    // The Settings page has no provider fields; leave provider configs alone.
+    $provider_slugs = isset($_POST['kriti_ai_providers'])
+      ? array_unique(
+        array_merge(
+          array_keys($existing),
+          array_keys($providers)
+        )
       )
-    );
+      : array();
 
     foreach ($provider_slugs as $slug) {
       $slug = sanitize_key($slug);
@@ -257,6 +307,11 @@ class Settings
           : $default_model
         );
 
+      // Only self-hosted providers keep a saved model; the rest use their default.
+      if (! Provider_Manager::has_model_setting($slug)) {
+        $model = '';
+      }
+
       /*
 			 * Base URL.
 			 */
@@ -277,8 +332,9 @@ class Settings
       /*
 			 * API key.
 			 *
-			 * Keep the existing API key when the field is not
-			 * submitted or is intentionally left blank.
+			 * The field shows the saved key, so a submitted blank value means
+			 * the key was removed (which disables the provider). Keep the
+			 * existing key when the field is not submitted at all.
 			 */
       $api_key = isset($config['api_key'])
         ? (string) $config['api_key']
@@ -286,14 +342,22 @@ class Settings
 
       if (
         isset($submitted['api_key']) &&
-        is_string($submitted['api_key']) &&
-        '' !== trim($submitted['api_key'])
+        is_string($submitted['api_key'])
       ) {
-        $api_key = sanitize_text_field($submitted['api_key']);
+        $api_key = sanitize_text_field(trim($submitted['api_key']));
+      }
+
+      // Mirrors Provider::is_enabled(): enabled by a key, or a server URL for self-hosted providers.
+      if ('mock' === $slug) {
+        $enabled = true;
+      } elseif (Provider_Manager::requires_key($slug)) {
+        $enabled = '' !== $api_key;
+      } else {
+        $enabled = '' !== $base_url_clean;
       }
 
       $existing[$slug] = array(
-        'enabled'  => ! empty($submitted['enabled']),
+        'enabled'  => $enabled,
         'api_key'  => $api_key,
         'model'    => self::normalizeModel($slug, $model),
         'base_url' => $base_url_clean,
@@ -312,10 +376,14 @@ class Settings
 
     update_option('kriti_ai_providers', $existing);
 
+    $return_page = isset($_POST['kriti_ai_return_page']) && 'kriti-ai-settings' === $_POST['kriti_ai_return_page']
+      ? 'kriti-ai-settings'
+      : 'kriti-ai-providers';
+
     wp_safe_redirect(
       add_query_arg(
         array(
-          'page'    => 'kriti-ai-providers',
+          'page'    => $return_page,
           'updated' => '1',
         ),
         admin_url('admin.php')

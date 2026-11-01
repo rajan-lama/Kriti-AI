@@ -31,7 +31,7 @@ class OpenAI_Audio extends Provider implements Audio_Provider
 		$body = array(
 			'model'           => $this->get_model($params),
 			'input'           => (string) $text,
-			'voice'           => isset($params['voice']) ? (string) $params['voice'] : 'alloy',
+			'voice'           => ! empty($params['voice']) ? (string) $params['voice'] : 'alloy',
 			'speed'           => isset($params['speed']) ? (float) $params['speed'] : 1.0,
 			'response_format' => isset($params['format']) ? (string) $params['format'] : 'mp3',
 		);
@@ -86,5 +86,18 @@ class OpenAI_Audio extends Provider implements Audio_Provider
 		);
 
 		return isset($map[$mime]) ? $map[$mime] : 'mp3';
+	}
+
+	/**
+	 * Request used by the connection test.
+	 *
+	 * @return array
+	 */
+	protected function connection_request()
+	{
+		return array(
+			'url'		 => $this->get_base_url('https://api.openai.com') . '/v1/models',
+			'headers' => array('Authorization' => 'Bearer ' . $this->get_api_key()),
+		);
 	}
 }

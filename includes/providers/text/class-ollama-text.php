@@ -40,6 +40,11 @@ class Ollama_Text extends Provider implements Text_Provider
       ),
     );
 
+    $top_k = $this->get_top_k($params);
+    if ($top_k > 0) {
+      $body['options']['top_k'] = $top_k;
+    }
+
     $timeout  = (int) $settings['text_timeout'];
     $response = $this->http_post_json($url, $body, array(), $timeout);
 
@@ -131,6 +136,19 @@ class Ollama_Text extends Provider implements Text_Provider
       'response'          => $content,
       'prompt_eval_count' => $tokens_in,
       'eval_count'        => $tokens_out,
+    );
+  }
+
+  /**
+   * Request used by the connection test.
+   *
+   * @return array
+   */
+  protected function connection_request()
+  {
+    return array(
+      'url'     => $this->get_base_url('http://localhost:11434') . '/api/tags',
+      'headers' => array(),
     );
   }
 }

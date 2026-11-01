@@ -56,15 +56,15 @@ class Assets
 
     wp_enqueue_style('kriti-ai-google-fonts', add_query_arg($kriti_ai_query_args, '//fonts.googleapis.com/css'), array(), KRITI_AI_VERSION);
 
-    wp_enqueue_style('kriti-ai-admin', KRITI_AI_URL . 'admin/css/admin.css', array(), KRITI_AI_VERSION);
+    wp_enqueue_style('kriti-ai-admin', KRITI_AI_URL . 'admin/css/admin.css', array(), self::asset_version('admin/css/admin.css'));
 
-    wp_enqueue_style('kriti-ai-tailwind', KRITI_AI_URL . 'admin/css/tailwind.css', array(), KRITI_AI_VERSION);
+    wp_enqueue_style('kriti-ai-tailwind', KRITI_AI_URL . 'admin/css/tailwind.css', array(), self::asset_version('admin/css/tailwind.css'));
 
     wp_enqueue_script(
       'kriti-ai-admin',
       KRITI_AI_URL . 'admin/js/admin.js',
       array('wp-i18n'),
-      KRITI_AI_VERSION,
+      self::asset_version('admin/js/admin.js'),
       true
     );
 
@@ -79,21 +79,43 @@ class Assets
         'defaults' => array(
           'temperature' => Settings::get()['temperature'],
           'max_tokens'  => Settings::get()['max_tokens'],
+          'top_p'       => Settings::get()['top_p'],
+          'top_k'       => Settings::get()['top_k'],
         ),
-        'models'   => array(
-          'openai'       => Provider_Manager::model_choices('openai'),
-          'gemini'       => Provider_Manager::model_choices('gemini'),
-          'deepseek'     => Provider_Manager::model_choices('deepseek'),
-          'ollama'       => Provider_Manager::model_choices('ollama'),
-          'openai_image' => Provider_Manager::model_choices('openai_image'),
-          'gemini_image' => Provider_Manager::model_choices('gemini_image'),
-          'openai_audio' => Provider_Manager::model_choices('openai_audio'),
-          'gemini_audio' => Provider_Manager::model_choices('gemini_audio'),
-          'openai_video' => Provider_Manager::model_choices('openai_video'),
-          'gemini_video' => Provider_Manager::model_choices('gemini_video'),
-          'mock'         => Provider_Manager::model_choices('mock'),
-        ),
+        'models'   => self::model_choices(),
       )
     );
+  }
+
+  /**
+   * Asset version that changes whenever the file does, so browsers never
+   * keep a stale copy after an update.
+   *
+   * @param string $relative_path Path relative to the plugin directory.
+   * @return string
+   */
+  private static function asset_version($relative_path)
+  {
+    $mtime = @filemtime(KRITI_AI_DIR . $relative_path); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Missing file falls back to the plugin version.
+
+    return $mtime ? KRITI_AI_VERSION . '.' . $mtime : KRITI_AI_VERSION;
+  }
+
+  /**
+   * Suggested models for every registered provider, keyed by slug.
+   *
+   * @return array
+   */
+  private static function model_choices()
+  {
+    $models = array();
+
+    foreach (array('text', 'image', 'audio', 'video') as $capability) {
+      foreach (Provider_Manager::slugs_for($capability) as $slug) {
+        $models[$slug] = Provider_Manager::model_choices($slug);
+      }
+    }
+
+    return $models;
   }
 }

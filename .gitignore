@@ -18,6 +18,8 @@
 /xmlrpc.php
 
 /node_modules/
+node_modules
+/node_modules/*
 
 # Configuration
 wp-config.php

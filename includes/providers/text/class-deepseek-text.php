@@ -66,4 +66,17 @@ class DeepSeek_Text extends Provider implements Text_Provider
 			'model'      => $this->get_model($params),
 		);
 	}
+
+	/**
+	 * Request used by the connection test.
+	 *
+	 * @return array
+	 */
+	protected function connection_request()
+	{
+		return array(
+			'url'		 => $this->get_base_url('https://api.deepseek.com') . '/v1/models',
+			'headers' => array('Authorization' => 'Bearer ' . $this->get_api_key()),
+		);
+	}
 }

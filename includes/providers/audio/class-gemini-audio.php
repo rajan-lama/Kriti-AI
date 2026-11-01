@@ -170,4 +170,17 @@ class Gemini_Audio extends Provider implements Audio_Provider
 
 		return isset($map[$model]) ? $map[$model] : $model;
 	}
+
+	/**
+	 * Request used by the connection test.
+	 *
+	 * @return array
+	 */
+	protected function connection_request()
+	{
+		return array(
+			'url'		 => preg_replace('#/v1beta(/models)?/?$#i', '', rtrim($this->get_base_url('https://generativelanguage.googleapis.com'), '/')) . '/v1beta/models?key=' . rawurlencode($this->get_api_key()),
+			'headers' => array(),
+		);
+	}
 }
