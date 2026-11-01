@@ -255,6 +255,11 @@ abstract class Provider
 	 */
 	protected function write_tmp_file($contents, $extension)
 	{
+		// wp_tempnam() is only loaded in wp-admin, not on REST or cron requests.
+		if (! function_exists('wp_tempnam')) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		$tmp = wp_tempnam('kriti-ai-', sys_get_temp_dir());
 
 		if (! $tmp) {
