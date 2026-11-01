@@ -145,8 +145,8 @@ class Admin
 
     add_submenu_page(
       'kriti-ai',
-      __('MCP Server', 'kriti-ai'),
-      __('MCP Server', 'kriti-ai'),
+      __('Integrations Hub', 'kriti-ai'),
+      __('Integrations Hub', 'kriti-ai'),
       'manage_options',
       'kriti-ai-providers',
       array(__CLASS__, 'pageProviders')

@@ -211,7 +211,7 @@ When the Kriti AI Pro add-on is active, the content it sends for writing actions
 
 1. Upload the `kriti-ai` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the Plugins screen.
-3. Open the Integrations Hub (Kriti AI → MCP Server in the admin menu) and add an API key, or a server URL for Ollama / Local AI. Click "Test connection" to check it, then save.
+3. Open Kriti AI → Integrations Hub and add an API key, or a server URL for Ollama / Local AI. Click "Test connection" to check it, then save.
 4. Optionally set your defaults on Kriti AI → Settings.
 5. Head to AI Studio, write a prompt or load a saved prompt, tune the parameters and click Generate.
 6. Watch the job in the Queue screen. Publish finished items from the queue, AI Media list or the post editor.
@@ -220,7 +220,7 @@ When the Kriti AI Pro add-on is active, the content it sends for writing actions
 
 = How are generated items kept as drafts? =
 
-Content generation creates a standard `post` in `draft` status. Image, audio and video files are uploaded to wp-content/uploads and registered as Media Library attachments carrying a `draft`/`published` state. Nothing becomes publicly visible until you publish it.
+Articles are saved as drafts in Kriti AI → Content Library. When you publish one, Kriti AI creates a draft copy in the post type you choose under "Publish Target" (Posts by default), so you publish the final post yourself. Image, audio and video files are saved in wp-content/uploads as Kriti AI → Media Library drafts and are added to the WordPress Media Library only when you publish them. Nothing becomes publicly visible until you publish it.
 
 = Which providers are supported? =
 

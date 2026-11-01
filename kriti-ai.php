@@ -59,7 +59,7 @@ add_action('plugins_loaded', 'kriti_ai_boot');
  */
 function kriti_ai_pro_platform_bridge($platform)
 {
-  if ($platform || ! interface_exists('KritiAI\\Writer\\Platform\\PlatformContract')) {
+  if ($platform || ! interface_exists('KritiAI\\PRO\\Writer\\Platform\\PlatformContract')) {
     return $platform;
   }
 

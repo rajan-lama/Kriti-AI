@@ -53,7 +53,7 @@ admin/js/admin.js               Vanilla JS, no build step (initGenerate / initQu
 admin/css/admin.css             Plugin styles; tailwind.css is prebuilt (never load Tailwind from a CDN)
 ```
 
-Admin pages: Dashboard (`kriti-ai`), AI Studio (`kriti-ai-generate`), Queue (`kriti-ai-queue`), Settings (`kriti-ai-settings`), Integrations Hub (`kriti-ai-providers`, menu label "MCP Server").
+Admin pages: Dashboard (`kriti-ai`), AI Studio (`kriti-ai-generate`), Queue (`kriti-ai-queue`), Settings (`kriti-ai-settings`), Integrations Hub (`kriti-ai-providers`).
 
 ## 4. Providers
 

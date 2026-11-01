@@ -23,7 +23,7 @@ Connect multiple AI providers to generate content, images, audio and video insid
 ## Installation
 
 1. Copy the `kriti-ai` folder to `wp-content/plugins/` and activate it.
-2. Open the **Integrations Hub** (*Kriti AI → MCP Server* in the admin menu), add API keys (or a server URL for Ollama / Local AI), click **Test connection**, then **Save Settings**.
+2. Open the **Integrations Hub** (*Kriti AI → Integrations Hub*), add API keys (or a server URL for Ollama / Local AI), click **Test connection**, then **Save Settings**.
 3. Optionally set defaults on **Kriti AI → Settings**.
 4. Open **Kriti AI → AI Studio**, write a prompt (or load one from the library), tune parameters and click **Generate**.
 5. Track the job in **Queue** and publish finished items.

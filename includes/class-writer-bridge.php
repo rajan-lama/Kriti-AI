@@ -15,7 +15,7 @@ namespace KritiAI;
 /**
  * Class Writer_Bridge
  */
-class Writer_Bridge implements \KritiAI\Writer\Platform\PlatformContract
+class Writer_Bridge implements \KritiAI\PRO\Writer\Platform\PlatformContract
 {
   /**
    * How long finished job results stay available to Writer (seconds).
