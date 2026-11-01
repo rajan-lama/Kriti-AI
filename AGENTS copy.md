@@ -6,7 +6,7 @@ Guidance for AI coding agents working in this plugin. Read §6 (pitfalls) before
 
 Kriti AI connects WordPress to AI providers (text, image, audio, video) using the site owner's own API keys or self-hosted servers, runs generation through a background queue, and keeps every result as a **draft** until a human publishes it.
 
-It is also the **platform** for the Kriti AI Writer add-on (`../kriti-ai-writer`): Writer never calls providers itself; it calls Kriti AI through `includes/class-writer-bridge.php`.
+It is also the **platform** for the Kriti AI Pro add-on (`../kriti-ai-pro`): Writer never calls providers itself; it calls Kriti AI through `includes/class-writer-bridge.php`.
 
 ```
 Prompt (+ {{variables}})
@@ -31,7 +31,7 @@ Prompt (+ {{variables}})
 ## 3. File map
 
 ```
-kriti-ai.php                    Constants (KRITI_AI_VERSION, KRITI_AI_DIR, KRITI_AI_URL), boot, kriti_ai_writer_platform filter
+kriti-ai.php                    Constants (KRITI_AI_VERSION, KRITI_AI_DIR, KRITI_AI_URL), boot, kriti_ai_pro_platform filter
 includes/
   autoload.php                  KritiAI\Foo\Bar_Baz → includes/foo/class-bar-baz.php; tries the plain lower-cased name first
                                 (OpenAI_Text → class-openai-text.php), then a CamelCase-split name
@@ -81,7 +81,7 @@ To add one: extend `Core\Provider`, implement the interface, add the slug to `$c
 - `kriti_ai_settings` (see `Settings::get()`): `default_{text,image,audio,video}_provider` (`''` = first available), `temperature`, `max_tokens`, `top_p`, `top_k`, `image_resolution`, `image_aspect_ratio`, `image_style`, `image_quality`, `audio_voice`, `audio_speed`, `audio_stability`, `audio_similarity_boost`, `video_duration`, `video_resolution`, `video_aspect_ratio`, `video_quality`, `text_timeout`, `media_timeout`, `video_poll_interval`, `delete_uninstall`.
 - Other options: `KRITI_AI_DB_version`, `kriti_ai_queue_lock` (`{marker}:{expiry}`, claimed with atomic `add_option`).
 - Cron: `kriti_ai_process_queue` on the `kriti_ai_every_minute` schedule.
-- Writer bridge job results: transients `kriti_ai_writer_job_<md5>` for 1 hour (`JOB_TTL`).
+- Writer bridge job results: transients `kriti_ai_pro_job_<md5>` for 1 hour (`JOB_TTL`).
 
 ## 6. Pitfalls (learned the hard way)
 

@@ -4,7 +4,7 @@ Tags: ai, content generation, text to speech, image generation, video
 Requires at least: 5.8
 Tested up to: 7.1.4
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -123,7 +123,7 @@ Kriti AI is designed to evolve with the WordPress community. Feedback and sugges
 * Generated media files are stored in the uploads folder as kriti_ai_media drafts and can be published to the WordPress Media Library from the AI Media list.
 * Background queue powered by WP-Cron. Long video jobs are polled automatically until the provider finishes.
 * Metrics dashboard: requests, success/failure rates, token usage, estimated cost, average generation time, per-provider breakdown and draft vs published counts.
-* Powers the Kriti AI Writer add-on: editor-side writing actions, AI review, summaries, FAQ generation, article and summary podcasts, and the Writer's prompt and provider choices all run on the providers configured here.
+* Powers the Kriti AI Pro add-on: editor-side writing actions, AI review, summaries, FAQ generation, article and summary podcasts, and the Writer's prompt and provider choices all run on the providers configured here.
 * A built-in Mock provider lets you test the full workflow without any API key.
 * API keys can also be supplied via wp-config.php constants.
 
@@ -205,7 +205,7 @@ Kriti AI integrates directly with external AI API services to perform AI generat
 * **Ollama and Local AI (self-hosted)**
   - Requests go only to the server URL you enter (for example your own computer or network). No data is sent to Kriti AI or any other third party unless that server is itself a third-party service.
 
-When the Kriti AI Writer add-on is active, the content it sends for writing actions, reviews, summaries, FAQs and podcasts is processed by the provider you configured above.
+When the Kriti AI Pro add-on is active, the content it sends for writing actions, reviews, summaries, FAQs and podcasts is processed by the provider you configured above.
 
 == Installation ==
 
@@ -251,8 +251,8 @@ Video providers run asynchronously. The plugin polls them on every WP-Cron tick 
 * Changed: cloud providers use a default model; the Model field remains only for Ollama and Local AI.
 * Added a Settings page with defaults for every AI Studio parameter, plus Top K in AI Studio.
 * Changed: the Mock provider is offered only when no other provider is set up for that type.
-* Kriti AI Writer: Prompt Library and per-user provider/model choices, an output budget sized for each writing task, longer-lived job results, and dedicated prompts for writing actions, AI review, summaries and FAQs.
-* Kriti AI Writer: article and summary podcasts (long text is split, voiced and joined into one Media Library audio file).
+* Kriti AI Pro: Prompt Library and per-user provider/model choices, an output budget sized for each writing task, longer-lived job results, and dedicated prompts for writing actions, AI review, summaries and FAQs.
+* Kriti AI Pro: article and summary podcasts (long text is split, voiced and joined into one Media Library audio file).
 * Fixed: the OpenAI providers (text, image, audio and video) and DeepSeek could not be enabled because their classes never loaded (autoloader bug).
 * Fixed: media providers failed outside wp-admin (REST and WP-Cron) because a WordPress helper was not loaded.
 * Fixed: admin CSS and JS are versioned by file date so browsers pick up updates.

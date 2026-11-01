@@ -1,6 +1,6 @@
 # Kriti AI
 
-Connect multiple AI providers to generate content, images, audio and video inside WordPress. Generated items stay as **drafts** until you publish them. Kriti AI is also the platform behind the [Kriti AI Writer](../kriti-ai-writer/README.md) add-on.
+Connect multiple AI providers to generate content, images, audio and video inside WordPress. Generated items stay as **drafts** until you publish them. Kriti AI is also the platform behind the [Kriti AI Pro](../kriti-ai-pro/README.md) add-on.
 
 ## Features
 
@@ -18,7 +18,7 @@ Connect multiple AI providers to generate content, images, audio and video insid
 - **Draft-first workflow** — generated articles are draft posts; media are `kriti_ai_media` drafts that can be published to the Media Library.
 - **Background queue** — WP-Cron worker with a DB lock; async video jobs are polled until done.
 - **Metrics dashboard** — requests, success/failure, tokens, estimated cost, duration, per-provider breakdown, draft vs published.
-- **Writer platform** — provides text generation, the Prompt Library, generation options and chunked podcast audio to Kriti AI Writer.
+- **Writer platform** — provides text generation, the Prompt Library, generation options and chunked podcast audio to Kriti AI Pro.
 
 ## Installation
 
@@ -57,7 +57,7 @@ kriti-ai/
 │   ├── class-ajax.php              admin-ajax endpoints (AI Studio, dashboard, Test connection)
 │   ├── class-admin.php             Menus and views
 │   ├── class-assets.php            Enqueues CSS/JS (versioned by file modification time)
-│   ├── class-writer-bridge.php     Kriti AI Writer PlatformContract implementation
+│   ├── class-writer-bridge.php     Kriti AI Pro PlatformContract implementation
 │   ├── core/                       Base Provider + Text/Image/Audio/Video interfaces
 │   └── providers/
 │       ├── class-mock-provider.php
@@ -98,7 +98,7 @@ Override `connection_request()` (URL + headers of a cheap, read-only GET) so **T
 | `kriti_ai_providers_for_capability` | filter | Provider slugs offered per capability |
 | `kriti_ai_provider_models` | filter | Suggested models per provider |
 | `kriti_ai_prompt_variables` | filter | Prompt variable replacements |
-| `kriti_ai_writer_bridge_max_tokens` | filter | Output budget per Writer operation |
+| `kriti_ai_pro_bridge_max_tokens` | filter | Output budget per Writer operation |
 | `kriti_ai_media_stored` / `kriti_ai_media_published` / `kriti_ai_content_published` | action | Generated item lifecycle |
 
 ## Local development
