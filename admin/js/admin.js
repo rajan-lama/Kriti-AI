@@ -1051,6 +1051,13 @@
             }
           }
 
+          // Copilot jobs say what they are doing, so a request can be traced here.
+          if ((job.job_type === "copilot" || job.job_type === "agent") && job.title) {
+            detail =
+              "<strong>" + api.esc(job.title) + "</strong>" +
+              (detail ? "<br>" + detail : "");
+          }
+
           if (job.status === "pending" || job.status === "processing") {
             action =
               '<button type="button" class="button kriti-ai-cancel-job" data-id="' +

@@ -42,6 +42,7 @@ class Settings
         'default_image_provider' => '',
         'default_audio_provider' => '',
         'default_video_provider' => '',
+        'default_embedding_provider' => '',
         // Content generation.
         'temperature'            => 0.7,
         'max_tokens'             => 1024,
@@ -199,7 +200,7 @@ class Settings
 		 */
     $clean = self::get();
 
-    foreach (array('text', 'image', 'audio', 'video') as $capability) {
+    foreach (array('text', 'image', 'audio', 'video', 'embedding') as $capability) {
       $key = 'default_' . $capability . '_provider';
       if (isset($settings[$key])) {
         $slug        = sanitize_key($settings[$key]);

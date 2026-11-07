@@ -63,6 +63,7 @@ AI services are cleanly decoupled into capability contracts:
 - `Image_Provider`: Handles text-to-image generation (PNG/WebP/SVG).
 - `Audio_Provider`: Handles text-to-speech synthesis into binary streams.
 - `Video_Provider`: Handles asynchronous job creation (`start_video`) and interval polling (`poll_video`).
+- `Embedding_Provider`: Turns texts into vectors (`generate_embeddings`). Each embedding provider (`openai_embedding`, `gemini_embedding`, `ollama_embedding`, `mock`) has its own card under **Embedding providers** in the Integrations Hub, with its own API key (or server URL) and its own saved model, like every other capability. Other plugins call `Provider_Manager::embed( $texts, $params, $slug )`; the provider used is the default chosen in Settings, else the first configured one.
 - Extensible via WordPress filters (`kriti_ai_provider_class`, `kriti_ai_providers_for_capability`, `kriti_ai_provider_models`).
 
 ### 2.4 Prompt Variable Engine
@@ -121,7 +122,8 @@ kriti-ai/
 │   │   ├── interface-text-provider.php     Text provider contract (`generate_text`)
 │   │   ├── interface-image-provider.php    Image provider contract (`generate_image`)
 │   │   ├── interface-audio-provider.php    Audio provider contract (`synthesize_audio`)
-│   │   └── interface-video-provider.php    Video provider contract (`start_video`, `poll_video`)
+│   │   ├── interface-video-provider.php    Video provider contract (`start_video`, `poll_video`)
+│   │   └── interface-embedding-provider.php Embedding provider contract (`generate_embeddings`)
 │   └── providers/
 │       ├── class-mock-provider.php         Offline mock provider for text, image, audio & video testing
 │       ├── text/                           Text Providers
@@ -132,6 +134,10 @@ kriti-ai/
 │       │   ├── class-groq-text.php         Groq high-speed Llama models
 │       │   ├── class-openrouter-text.php   OpenRouter API proxy
 │       │   └── class-ollama-text.php       Local Ollama models (`llama3.1`, `mistral`, etc.)
+│       ├── embedding/                      Embedding Providers
+│       │   ├── class-openai-embedding.php  OpenAI (`text-embedding-3-small`, etc.)
+│       │   ├── class-gemini-embedding.php  Google Gemini (`gemini-embedding-001`)
+│       │   └── class-ollama-embedding.php  Local Ollama (`nomic-embed-text`, etc.; the model must be pulled)
 │       ├── image/                          Image Providers
 │       │   ├── class-openai-image.php      OpenAI DALL-E 3 / DALL-E 2
 │       │   ├── class-gemini-image.php      Google Gemini Imagen 3

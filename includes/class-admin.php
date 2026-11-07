@@ -14,8 +14,6 @@ namespace KritiAI;
 class Admin
 {
 
-
-
   /**
    * The prompt library post type.
    *
@@ -151,6 +149,15 @@ class Admin
       'kriti-ai-providers',
       array(__CLASS__, 'pageProviders')
     );
+
+    add_submenu_page(
+      'kriti-ai',
+      __('Upgrade & Support', 'kriti-ai'),
+      __('Upgrade & Support', 'kriti-ai'),
+      'manage_options',
+      'kriti-ai-upgrade',
+      array(__CLASS__, 'pageUpgrade')
+    );
   }
 
   /**
@@ -201,6 +208,16 @@ class Admin
   public static function pageProviders()
   {
     self::renderView('providers');
+  }
+
+  /**
+   * Render the upgrade and support page.
+   *
+   * @return void
+   */
+  public static function pageUpgrade()
+  {
+    self::renderView('upgrade');
   }
 
   /**

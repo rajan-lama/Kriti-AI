@@ -17,7 +17,7 @@
       <a class="font-body-lg text-body-lg text-slate-gray dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="<?php echo esc_url(admin_url('admin.php?page=kriti-ai-providers')); ?>"><?php esc_html_e('Integrations Hub', 'kriti-ai'); ?></a>
     </div>
     <!-- Trailing Action -->
-    <a href="https://kritiai.net/products" class="bg-kriti-ai-primary text-white font-label-md px-6 py-2 rounded-1 hover:opacity-90 transition-opacity hover:text-white">
+    <a href="<?php echo esc_url(admin_url('admin.php?page=kriti-ai-upgrade')); ?>" class="bg-kriti-ai-primary text-white font-label-md px-6 py-2 rounded-1 hover:opacity-90 transition-opacity hover:text-white">
       <?php esc_html_e('Get Pro', 'kriti-ai'); ?>
     </a>
   </div>

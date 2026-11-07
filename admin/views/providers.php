@@ -23,6 +23,7 @@ $kriti_ai_capabilities = array(
   'image' => __('Image providers', 'kriti-ai'),
   'audio' => __('Audio providers', 'kriti-ai'),
   'video' => __('Video providers', 'kriti-ai'),
+  'embedding' => __('Embedding providers', 'kriti-ai'),
 );
 ?>
 <div class="wrap">
@@ -119,12 +120,14 @@ $kriti_ai_capabilities = array(
                           </div>
                         <?php endif; ?>
 
-                        <?php if ('ollama' === $kriti_ai_slug) : ?>
+                        <?php if ('ollama' === $kriti_ai_slug || 'ollama_embedding' === $kriti_ai_slug) : ?>
                           <div class="kriti-ai-field">
                             <label><?php esc_html_e('Server URL', 'kriti-ai'); ?></label>
                             <input type="url" name="kriti_ai_providers[<?php echo esc_attr($kriti_ai_slug); ?>][base_url]" data-kriti-ai-url value="<?php echo esc_attr(isset($kriti_ai_config['base_url']) ? $kriti_ai_config['base_url'] : ''); ?>" placeholder="http://localhost:11434" class="regular-text w-full py-2 border border-kriti-ai-outline-variant rounded-lg font-kriti-ai-title-md text-kriti-ai-body-md text-kriti-ai-on-surface hover:bg-kriti-ai-surface-container-low transition-colors" />
                             <p class="description">
-                              <?php esc_html_e('Enter your Ollama server URL (e.g. http://localhost:11434) to enable it. Please use full model name like qwen3.5:latest', 'kriti-ai'); ?>
+                              <?php echo 'ollama_embedding' === $kriti_ai_slug
+                              ? esc_html__('Enter your Ollama server URL (e.g. http://localhost:11434) to enable it. The embedding model must be installed on the server: ollama pull nomic-embed-text', 'kriti-ai')
+                              : esc_html__('Enter your Ollama server URL (e.g. http://localhost:11434) to enable it. Please use full model name like qwen3.5:latest', 'kriti-ai'); ?>
                             </p>
                           </div>
                         <?php elseif ('openrouter' === $kriti_ai_slug) : ?>
@@ -145,6 +148,9 @@ $kriti_ai_capabilities = array(
                           <div class="kriti-ai-field">
                             <label><?php esc_html_e('Model', 'kriti-ai'); ?></label>
                             <input type="text" name="kriti_ai_providers[<?php echo esc_attr($kriti_ai_slug); ?>][model]" list="kriti-ai-models-<?php echo esc_attr($kriti_ai_slug); ?>" placeholder="<?php echo $kriti_ai_is_local ? esc_attr__('Model name on your server', 'kriti-ai') : ''; ?>" class="regular-text w-full py-2 border border-kriti-ai-outline-variant rounded-lg font-kriti-ai-title-md text-kriti-ai-body-md text-kriti-ai-on-surface hover:bg-kriti-ai-surface-container-low transition-colors" value="<?php echo esc_attr($kriti_ai_model_value); ?>" autocomplete="off" />
+                            <?php if (Provider_Manager::is_embedding($kriti_ai_slug)) : ?>
+                              <p class="description"><?php esc_html_e('Turns text into numbers for meaning search, for example in Kriti AI Chatbot. If you change the model, content that was embedded with the old one is embedded again.', 'kriti-ai'); ?></p>
+                            <?php endif; ?>
                             <datalist id="kriti-ai-models-<?php echo esc_attr($kriti_ai_slug); ?>">
                               <?php foreach ($kriti_ai_models as $kriti_ai_model) : ?>
                                 <option value="<?php echo esc_attr($kriti_ai_model); ?>"></option>

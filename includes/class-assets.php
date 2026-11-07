@@ -41,6 +41,7 @@ class Assets
       'kriti-ai_page_kriti-ai-providers',
       'kriti-ai_page_kriti-ai-media',
       'kriti-ai_page_kriti-ai-settings',
+      'kriti-ai_page_kriti-ai-upgrade',
     );
 
     $screen = function_exists('get_current_screen') ? get_current_screen() : null;
@@ -110,7 +111,7 @@ class Assets
   {
     $models = array();
 
-    foreach (array('text', 'image', 'audio', 'video') as $capability) {
+    foreach (array('text', 'image', 'audio', 'video', 'embedding') as $capability) {
       foreach (Provider_Manager::slugs_for($capability) as $slug) {
         $models[$slug] = Provider_Manager::model_choices($slug);
       }
