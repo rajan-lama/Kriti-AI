@@ -12,6 +12,7 @@ namespace KritiAI\Providers;
 
 use KritiAI\Core\Provider;
 use KritiAI\Core\Text_Provider;
+use KritiAI\Core\Embedding_Provider;
 use KritiAI\Core\Image_Provider;
 use KritiAI\Core\Audio_Provider;
 use KritiAI\Core\Video_Provider;
@@ -19,10 +20,51 @@ use KritiAI\Core\Video_Provider;
 /**
  * Class Mock_Provider
  */
-class Mock_Provider extends Provider implements Text_Provider, Image_Provider, Audio_Provider, Video_Provider
+class Mock_Provider extends Provider implements Text_Provider, Embedding_Provider, Image_Provider, Audio_Provider, Video_Provider
 {
 
 
+
+	/**
+	 * Deterministic fake embeddings: words are hashed into a 64-dimension vector, so equal texts give
+	 * equal vectors and texts that share words are close. It carries no meaning; it only lets the
+	 * pipeline be tested without a key.
+	 *
+	 * @param string[] $texts Texts.
+	 * @param array    $params Parameters.
+	 * @return array
+	 */
+	public function generate_embeddings($texts, $params = array())
+	{
+		$dimensions = 64;
+		$vectors    = array();
+		$tokens     = 0;
+
+		foreach (array_values((array) $texts) as $text) {
+			$vector = array_fill(0, $dimensions, 0.0);
+			$words  = preg_split('/[^\p{L}\p{N}]+/u', strtolower((string) $text), -1, PREG_SPLIT_NO_EMPTY);
+
+			foreach (is_array($words) ? $words : array() as $word) {
+				++$tokens;
+				$vector[crc32($word) % $dimensions] += (crc32('s' . $word) % 2) ? 1.0 : -1.0;
+			}
+
+			$norm = sqrt(array_sum(array_map(static function ($x) {
+				return $x * $x;
+			}, $vector)));
+
+			$vectors[] = $norm > 0 ? array_map(static function ($x) use ($norm) {
+				return $x / $norm;
+			}, $vector) : $vector;
+		}
+
+		return array(
+			'vectors'    => $vectors,
+			'dimensions' => $dimensions,
+			'tokens_in'  => $tokens,
+			'model'      => 'mock-embedding',
+		);
+	}
 
 	/**
 	 * Generate a fake article as JSON so the split logic is exercised.

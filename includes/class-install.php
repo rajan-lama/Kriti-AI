@@ -192,6 +192,7 @@ class Install
           'default_image_provider' => 'mock',
           'default_audio_provider' => 'mock',
           'default_video_provider' => 'mock',
+          'default_embedding_provider' => 'mock',
           'temperature'            => 0.7,
           'max_tokens'             => 1024,
           'text_timeout'           => 90,

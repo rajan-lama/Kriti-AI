@@ -455,7 +455,7 @@ class Ajax
    */
   private static function dashboard_connected_models()
   {
-    $capabilities = array('text', 'image', 'audio', 'video');
+    $capabilities = array('text', 'image', 'audio', 'video', 'embedding');
     $seen         = array();
 
     foreach ($capabilities as $capability) {
@@ -561,7 +561,7 @@ class Ajax
     $slug  = sanitize_key(self::get_param('slug', ''));
     $known = array();
 
-    foreach (array('text', 'image', 'audio', 'video') as $capability) {
+    foreach (array('text', 'image', 'audio', 'video', 'embedding') as $capability) {
       $known = array_merge($known, Provider_Manager::slugs_for($capability));
     }
 

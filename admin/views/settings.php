@@ -79,6 +79,7 @@ $kriti_ai_capabilities = array(
   'image' => __('Image', 'kriti-ai'),
   'audio' => __('Audio', 'kriti-ai'),
   'video' => __('Video', 'kriti-ai'),
+  'embedding' => __('Embedding', 'kriti-ai'),
 );
 ?>
 <div class="wrap">

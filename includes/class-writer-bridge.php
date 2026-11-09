@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Bridges Kriti AI Writer's PlatformContract to the local Kriti AI providers.
+ * Bridges Kriti AI Pro's PlatformContract to the local Kriti AI providers.
  *
- * Only loaded when Kriti AI Writer is active (see kriti_ai_writer_platform
+ * Only loaded when Kriti AI Pro is active (see kriti_ai_pro_platform
  * filter in kriti-ai.php). Runs generation synchronously since jobs execute
  * in-process rather than through a remote queue.
  *
@@ -15,7 +15,7 @@ namespace KritiAI;
 /**
  * Class Writer_Bridge
  */
-class Writer_Bridge implements \KritiAI\Writer\Platform\PlatformContract
+class Writer_Bridge implements \KritiAI\PRO\Writer\Platform\PlatformContract
 {
   /**
    * How long finished job results stay available to Writer (seconds).
@@ -428,7 +428,7 @@ class Writer_Bridge implements \KritiAI\Writer\Platform\PlatformContract
    */
   private function job_key($job_id)
   {
-    return 'kriti_ai_writer_job_' . md5((string) $job_id);
+    return 'kriti_ai_pro_job_' . md5((string) $job_id);
   }
 
   /**
@@ -489,7 +489,7 @@ class Writer_Bridge implements \KritiAI\Writer\Platform\PlatformContract
      * @param int    $tokens    Budget.
      * @param string $operation Operation slug.
      */
-    return (int) apply_filters('kriti_ai_writer_bridge_max_tokens', max($max_tokens, $floor), $operation);
+    return (int) apply_filters('kriti_ai_pro_bridge_max_tokens', max($max_tokens, $floor), $operation);
   }
 
   /**
