@@ -2,7 +2,7 @@
 Contributors: lamarajan
 Tags: ai, content generation, text to speech, image generation, video
 Requires at least: 5.8
-Tested up to: 7.2
+Tested up to: 7.1.5
 Requires PHP: 7.4
 Stable tag: 1.1.2
 License: GPLv2 or later
