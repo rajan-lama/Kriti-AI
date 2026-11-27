@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name:       Kriti AI
+ * Plugin Name:       Kriti AI - Free AI Content & Media Generator
  * Plugin URI:        https://wordpress.org/plugins/kriti-ai/
  * Description:       Connect multiple AI providers (OpenAI, Google Gemini, Ollama) to generate content, audio and video inside WordPress. Generated items stay as drafts until published.
  * Version:           1.1.2

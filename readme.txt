@@ -1,10 +1,10 @@
-=== Kriti AI ===
+=== Kriti AI - Free AI Content & Media Generator ===
 Contributors: lamarajan
 Tags: ai, content generation, text to speech, image generation, video
 Requires at least: 5.8
-Tested up to: 7.1.4
+Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,7 +32,7 @@ Connect supported AI providers in the Integrations Hub and use AI directly from 
 
 Add an API key and the provider is ready to use. A "Test connection" button checks the key before you rely on it. Self-hosted AI (Ollama and any OpenAI-compatible "Local AI" server) is supported too.
 
-### ✍️ Generate Content
+### Generate Content
 
 Create AI-generated content from your own prompts.
 
@@ -44,25 +44,25 @@ Generate content for:
 * Custom post types
 * Other WordPress content types
 
-### 🧠 Custom Prompts
+### Custom Prompts
 
 Create and reuse prompts for your most common content workflows.
 
 Build a prompt-driven workflow instead of repeatedly writing the same instructions.
 
-### 🎯 Control AI Generation
+### Control AI Generation
 
 Set defaults for every AI Studio parameter on the Settings page: default provider per type, temperature, max tokens, Top P, Top K, image size and style, voice and speed, video duration and quality. Change any of them for a single generation in AI Studio.
 
-### 🖼️ AI-Generated Media
+### AI-Generated Media
 
 Store AI-generated media alongside your generated content and use it within your WordPress workflow.
 
-### 📊 Generation History & Metrics
+### Generation History & Metrics
 
 Keep track of generated content and useful generation information so you can understand how your AI workflow is being used.
 
-### 🚀 Publish Directly to WordPress
+### Publish Directly to WordPress
 
 Turn generated content into WordPress content without manually copying and pasting between different applications.
 
@@ -243,6 +243,12 @@ Cloud providers use their recommended default model. Choose another model for a 
 Video providers run asynchronously. The plugin polls them on every WP-Cron tick using the configured poll interval. If your site has no external cron, make sure WP-Cron is enabled (default) or set up a real cron job hitting wp-cron.php.
 
 == Changelog ==
+
+= 1.1.2 = 
+* add link for generate API key
+
+= 1.1.1 =
+* Added link for premium plugins.
 
 = 1.1.0 =
 * Added providers: Anthropic Claude, Groq and OpenRouter (text), Stability AI and Replicate (image), ElevenLabs (audio), and Local AI for image, audio and video.
