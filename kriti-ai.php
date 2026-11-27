@@ -4,7 +4,7 @@
  * Plugin Name:       Kriti AI
  * Plugin URI:        https://wordpress.org/plugins/kriti-ai/
  * Description:       Connect multiple AI providers (OpenAI, Google Gemini, Ollama) to generate content, audio and video inside WordPress. Generated items stay as drafts until published.
- * Version:           1.1.0
+ * Version:           1.1.2
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Kriti AI
@@ -25,7 +25,7 @@ if (! defined('ABSPATH')) {
   exit;
 }
 
-define('KRITI_AI_VERSION', '1.1.0');
+define('KRITI_AI_VERSION', '1.1.2');
 define('KRITI_AI_FILE', __FILE__);
 define('KRITI_AI_DIR', plugin_dir_path(__FILE__));
 define('KRITI_AI_URL', plugin_dir_url(__FILE__));

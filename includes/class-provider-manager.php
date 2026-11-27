@@ -363,6 +363,31 @@ class Provider_Manager
   }
 
   /**
+   * URL where a provider's API key can be created.
+   *
+   * @param string $slug Provider slug.
+   * @return string Empty when the provider has no key page.
+   */
+  public static function key_url($slug)
+  {
+    $urls = array(
+      'openai'           => 'https://platform.openai.com/api-keys',
+      'anthropic'        => 'https://console.anthropic.com/settings/keys',
+      'gemini'           => 'https://aistudio.google.com/app/apikey',
+      'deepseek'         => 'https://platform.deepseek.com/api_keys',
+      'groq'             => 'https://console.groq.com/keys',
+      'openrouter'       => 'https://openrouter.ai/settings/keys',
+      'stability'        => 'https://platform.stability.ai/account/keys',
+      'replicate'        => 'https://replicate.com/account/api-tokens',
+      'elevenlabs'       => 'https://elevenlabs.io/app/settings/api-keys',
+    );
+    $urls['openai_embedding'] = $urls['openai_image'] = $urls['openai_audio'] = $urls['openai_video'] = $urls['openai'];
+    $urls['gemini_embedding'] = $urls['gemini_image'] = $urls['gemini_audio'] = $urls['gemini_video'] = $urls['gemini'];
+
+    return isset($urls[$slug]) ? $urls[$slug] : '';
+  }
+
+  /**
    * A provider is ready when it exists, is enabled, and (for cloud providers)
    * has an API key configured.
    *

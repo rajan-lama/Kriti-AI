@@ -112,6 +112,11 @@ $kriti_ai_capabilities = array(
                           <div class="kriti-ai-field">
                             <label><?php $kriti_ai_is_local ? esc_html_e('API key (optional)', 'kriti-ai') : esc_html_e('API key', 'kriti-ai'); ?></label>
                             <input type="password" name="kriti_ai_providers[<?php echo esc_attr($kriti_ai_slug); ?>][api_key]" data-kriti-ai-key value="<?php echo esc_attr(isset($kriti_ai_config['api_key']) ? $kriti_ai_config['api_key'] : ''); ?>" class="regular-text  w-full py-2 border border-kriti-ai-outline-variant rounded-lg font-kriti-ai-title-md text-kriti-ai-body-md text-kriti-ai-on-surface hover:bg-kriti-ai-surface-container-low transition-colors" autocomplete="off" />
+                            <?php if ('' !== Provider_Manager::key_url($kriti_ai_slug)) : ?>
+                              <p class="description">
+                                <a href="<?php echo esc_url(Provider_Manager::key_url($kriti_ai_slug)); ?>" target="_blank" rel="nofollow noopener noreferrer"><?php esc_html_e('Get API key', 'kriti-ai'); ?> &#8599;</a>
+                              </p>
+                            <?php endif; ?>
                             <p class="description">
                               <?php esc_html_e('You can also define the constant ', 'kriti-ai'); ?>
                               <code><?php echo esc_html('KRITI_AI_KEY_' . strtoupper(str_replace('-', '_', $kriti_ai_slug))); ?></code>
