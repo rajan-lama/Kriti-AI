@@ -478,3 +478,7 @@ table.wp-list-table.widefat.fixed.striped.table-view-list.posts {
   list-style: disc;
   flex-grow: 1;
 }
+
+.kriti-ai-field p.description a {
+  color: blue;
+}
